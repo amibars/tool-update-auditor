@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+artifacts/
+*.log
+
+# Local Windows task-launcher files and generated reports.
+*.cmd
+*.json
+*.md.bak
