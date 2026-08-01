@@ -33,9 +33,10 @@ antivirus or a guarantee that an update is safe.
 
 ## Safety model
 
-- Installing the logon or weekly task performs an audit only. It does not apply
-  updates.
-- Applying updates always requires an explicit `--execute` or `--apply-ready`
+- Installing the logon or weekly task performs an audit only by default.
+- Automatic application is an explicit opt-in and runs only policy-approved
+  updates that have passed the release-age gate.
+- Manual application requires an explicit `--execute` or `--apply-ready`
   command.
 - Commands are executed as argument arrays, not through `shell=True`.
 - Generated inventory, reports, caches, scheduled-launcher files, and local
@@ -90,11 +91,27 @@ Register them only after inspecting the output:
 python .\scheduler_install.py --execute
 ```
 
+To make the scheduled logon and weekly runs automatically apply only
+policy-approved updates that are already eligible under the release-age gate,
+enable that mode explicitly during installation:
+
+```powershell
+python .\scheduler_install.py --execute --enable-auto-apply
+```
+
+After this one-time setup, the runner inventories the currently installed tools
+on each scheduled run. No static package list is required. An update with a
+known publish date becomes eligible once it is 72 hours old; for a safe channel
+without publish metadata, eligibility begins 72 hours after first detection.
+
 The Startup-folder launcher is also opt-in:
 
 ```powershell
 python .\install_startup_runner.py
 ```
+
+Use `python .\install_startup_runner.py --enable-auto-apply` to enable the
+same opt-in automatic-apply behavior for the Startup-folder launcher.
 
 ## Release-age policy
 

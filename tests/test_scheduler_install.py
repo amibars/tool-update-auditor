@@ -58,6 +58,17 @@ def test_build_task_specs_has_logon_and_weekly_tasks() -> None:
     assert "startup_runner.py" in specs[1].command
 
 
+def test_build_task_specs_enables_auto_apply_only_when_requested() -> None:
+    specs = build_task_specs(
+        r"C:\Users\example\ToolUpdateAuditor",
+        r"C:\Python312\python.exe",
+        apply_updates=True,
+    )
+
+    assert all("--apply-ready" in spec.command for spec in specs)
+    assert all("release-age gate" in spec.description for spec in specs)
+
+
 def test_should_run_weekly_updates_when_state_missing() -> None:
     assert should_run_weekly_updates(None, now=datetime(2026, 3, 22, tzinfo=timezone.utc)) is True
 
@@ -476,6 +487,16 @@ def test_launcher_content_targets_startup_runner() -> None:
 
     assert "startup_runner.py" in content
     assert "pythonw.exe" in content
+
+
+def test_launcher_content_includes_auto_apply_only_when_requested() -> None:
+    content = launcher_content(
+        Path(r"C:\Users\example\ToolUpdateAuditor"),
+        r"C:\Python312\pythonw.exe",
+        apply_updates=True,
+    )
+
+    assert "--apply-ready" in content
 
 
 def test_resolve_windows_user_home_prefers_real_profile_over_codex_store_home(tmp_path) -> None:

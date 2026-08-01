@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import getpass
 import os
 from pathlib import Path
@@ -51,17 +52,29 @@ def choose_python_launcher(python_exe: str) -> str:
     return python_exe
 
 
-def launcher_content(base_dir: Path, python_exe: str) -> str:
-    return f'@echo off\r\n"{python_exe}" "{base_dir / "startup_runner.py"}"\r\n'
+def launcher_content(base_dir: Path, python_exe: str, *, apply_updates: bool = False) -> str:
+    apply_args = " --apply-ready" if apply_updates else ""
+    return f'@echo off\r\n"{python_exe}" "{base_dir / "startup_runner.py"}"{apply_args}\r\n'
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Install a ToolUpdateAuditor Startup-folder launcher.")
+    parser.add_argument(
+        "--enable-auto-apply",
+        action="store_true",
+        help="Pass --apply-ready to the launcher so eligible updates apply automatically at logon.",
+    )
+    args = parser.parse_args()
     base_dir = Path(__file__).resolve().parent
     startup = startup_dir()
     startup.mkdir(parents=True, exist_ok=True)
     launcher = startup / "ToolUpdateAuditor.cmd"
     launcher.write_text(
-        launcher_content(base_dir, choose_python_launcher(sys.executable)),
+        launcher_content(
+            base_dir,
+            choose_python_launcher(sys.executable),
+            apply_updates=args.enable_auto_apply,
+        ),
         encoding="utf-8",
     )
     print(f"Installed startup launcher at {launcher}")
