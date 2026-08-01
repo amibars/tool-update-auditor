@@ -52,6 +52,32 @@ antivirus or a guarantee that an update is safe.
 
 The project uses only the Python standard library at runtime. Tests use pytest.
 
+## One-command Windows setup
+
+After cloning or downloading the repository, open PowerShell in the project
+folder and run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+This one-time setup registers current-user tasks for logon and weekly runs.
+Each run discovers the supported tools currently installed on the machine,
+keeps the 72-hour release-age state locally, and automatically applies only
+policy-approved updates that are eligible. No package list needs to be edited.
+
+Use audit-only mode instead:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -AuditOnly
+```
+
+Remove both scheduled tasks:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall
+```
+
 ## Usage
 
 ```powershell
