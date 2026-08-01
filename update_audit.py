@@ -31,6 +31,7 @@ MANAGED_CODEX_LB_NAME = "codex-lb"
 MANAGED_CODEX_LB_PACKAGE_ID = "codex-lb"
 MANAGED_CODEX_LB_WRAPPER_RELATIVE = Path(".codex") / "codex-lb-wrapper.ps1"
 MANAGED_CODEX_LB_PIN_RE = re.compile(r'^\$pinnedExe = "(?P<path>[^"]+)"$', flags=re.MULTILINE)
+ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
 
 @dataclass(frozen=True)
@@ -434,10 +435,14 @@ def _run_command(command: Sequence[str], *, timeout_seconds: float | None = None
     return completed.stdout
 
 
+def _strip_ansi(text: str) -> str:
+    return ANSI_ESCAPE_RE.sub("", text)
+
+
 def _parse_winget_list(raw_output: str) -> list[ToolRecord]:
     records: list[ToolRecord] = []
     for line in raw_output.splitlines():
-        stripped = line.strip()
+        stripped = _strip_ansi(line).strip()
         if not stripped or stripped.startswith(("Name ", "---", "█", "▒")):
             continue
         if stripped.startswith(("|", "/", "\\", "-")) and " " not in stripped:
@@ -474,7 +479,7 @@ def _parse_winget_list(raw_output: str) -> list[ToolRecord]:
 def _parse_scoop_list(raw_output: str) -> list[ToolRecord]:
     records: list[ToolRecord] = []
     for line in raw_output.splitlines():
-        stripped = line.strip()
+        stripped = _strip_ansi(line).strip()
         if not stripped or stripped.startswith(("Installed apps:", "Name", "----")):
             continue
         parts = re.split(r"\s{2,}", stripped)

@@ -77,6 +77,18 @@ Name             Version            Source   Updated             Info
     assert [record.name for record in parsed] == ["7zip"]
 
 
+def test_skips_ansi_colored_scoop_headers() -> None:
+    raw = """\
+\x1b[32;1mName            \x1b[0m\x1b[32;1mVersion\x1b[0m
+\x1b[32;1m----            \x1b[0m\x1b[32;1m-------\x1b[0m
+7zip             26.02              main
+"""
+
+    parsed = _parse_scoop_list(raw)
+
+    assert [record.name for record in parsed] == ["7zip"]
+
+
 def test_render_markdown_report_has_summary() -> None:
     report = render_markdown_report(
         [classify_record(ToolRecord(name="rtk", manager="local-bin", install_path="C:/Users/example/.local/bin/rtk.exe"), default_policy_rules())]
