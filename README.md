@@ -7,6 +7,30 @@ It is an **audit-first** tool. It writes local JSON and Markdown reports, adds a
 release-age gate where upstream metadata is available, and prints the exact
 commands needed to apply policy-approved updates.
 
+## Coverage and distinction
+
+The inventory covers six workstation update surfaces in one report:
+
+- WinGet packages;
+- Scoop packages and their bucket manifests;
+- global npm packages;
+- `uv tool` packages from PyPI;
+- local command shims in `%USERPROFILE%\.local\bin`;
+- Antigravity / VS Code-compatible extensions.
+
+Version availability is resolved through the owner appropriate to each source:
+WinGet, Scoop manifests, the npm registry, PyPI, and selected GitHub releases.
+Extensions remain inventory-only and are delegated to their host marketplace;
+the tool never replaces extension files directly. Local shims are likewise
+reported, and only explicitly mapped owners receive an update recommendation.
+
+For update candidates with trustworthy publish metadata, the tool applies a
+72-hour release-age gate. When publish metadata is unavailable for a
+policy-approved channel, it can defer eligibility for 72 hours from first
+detection instead. This reduces the chance of immediately installing a newly
+published compromised or broken release; it is a supply-chain delay, not an
+antivirus or a guarantee that an update is safe.
+
 ## Safety model
 
 - Installing the logon or weekly task performs an audit only. It does not apply
